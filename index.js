@@ -4,8 +4,8 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-app.get("/convert", async (req, res) => {
-  const { file_url, document_name, document_id } = req.query;
+app.post("/convert", async (req, res) => {
+  const { file_url, document_name, document_id } = req.body;
 
   if (!file_url || !document_name || !document_id) {
     return res.status(400).json({ error: "Faltan parámetros obligatorios" });
