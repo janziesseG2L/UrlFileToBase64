@@ -42,7 +42,7 @@ app.get("/convert", async (req, res) => {
     };
 
     // Llamada a API destino
-    const targetUrl = "https://api.destino.com/upload"; // <- Cambia por tu API
+    const targetUrl = "https://www.gladtolink.com:8080/api/G2LIntegration/b72d5cb3-8f5c-4a94-8a73-d7770e74ee70"; // <- Cambia por tu API
     const postResponse = await axios.post(targetUrl, payload);
 
     res.json({
