@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); // para leer JSON en el body
 
 app.post("/convert", async (req, res) => {
   const { file_url, document_name, document_id } = req.body;
@@ -12,9 +12,12 @@ app.post("/convert", async (req, res) => {
   }
 
   try {
-    // Descargar archivo
+    // Descargar archivo desde la URL
     const response = await axios.get(file_url, { responseType: "arraybuffer" });
     const fileBuffer = Buffer.from(response.data, "binary");
+
+    // Detectar MIME (ej: application/pdf, image/png, etc.)
+    const mimeType = response.headers["content-type"] || "application/octet-stream";
 
     // Convertir a Base64
     const encodedFile = fileBuffer.toString("base64");
@@ -33,7 +36,7 @@ app.post("/convert", async (req, res) => {
               name: "Archivo",
               value_file: {
                 name: document_name,
-                base64: `application/pdf;base64,${encodedFile}`,
+                base64: `${mimeType};base64,${encodedFile}`,
               },
             },
           ],
@@ -41,9 +44,14 @@ app.post("/convert", async (req, res) => {
       ],
     };
 
+    // URL de destino con token ya incluido
+    const targetUrl =
+      "https://www.gladtolink.com:8080/api/G2LIntegration/b72d5cb3-8f5c-4a94-8a73-d7770e74ee70";
+
     // Llamada a API destino
-    const targetUrl = "https://www.gladtolink.com:8080/api/G2LIntegration/b72d5cb3-8f5c-4a94-8a73-d7770e74ee70"; // <- Cambia por tu API
-    const postResponse = await axios.post(targetUrl, payload);
+    const postResponse = await axios.post(targetUrl, payload, {
+      headers: { "Content-Type": "application/json" },
+    });
 
     res.json({
       status: "success",
@@ -51,12 +59,28 @@ app.post("/convert", async (req, res) => {
       api_response: postResponse.data,
     });
   } catch (error) {
-    res.status(500).json({ status: "error", message: error.message });
+    console.error("❌ Error en /convert:", error.message);
+
+    if (error.response) {
+      // Error de la API destino o al descargar
+      return res.status(error.response.status).json({
+        status: "error",
+        message: error.message,
+        details: error.response.data,
+        headers: error.response.headers,
+      });
+    }
+
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+      stack: error.stack,
+    });
   }
 });
 
-// Puerto de Azure App Service
+// Puerto para Azure App Service
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+  console.log(`✅ Servidor escuchando en puerto ${PORT}`);
 });
