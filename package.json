@@ -1,5 +1,5 @@
 {
-  "name": "pdf-to-base64-service",
+  "name": "url-to-base64-service",
   "version": "1.0.0",
   "description": "Servicio en Express para descargar un archivo desde URL, convertir a base64 y enviarlo a GladToLink",
   "main": "index.js",
