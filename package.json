@@ -1,12 +1,27 @@
 {
-  "name": "azure-base64-app-js",
+  "name": "pdf-to-base64-service",
   "version": "1.0.0",
+  "description": "Servicio en Express para descargar un archivo desde URL, convertir a base64 y enviarlo a GladToLink",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
-    "axios": "^1.6.0",
-    "express": "^4.18.2"
-  }
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.7",
+    "fastify": "^4.21.0",
+    "handlebars": "^4.7.8",
+    "@fastify/formbody": "^7.4.0",
+    "@fastify/static": "^6.10.2",
+    "@fastify/view": "^8.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "author": "",
+  "license": "ISC"
 }
