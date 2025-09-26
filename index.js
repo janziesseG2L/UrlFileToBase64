@@ -32,40 +32,39 @@ app.post("/procesar-pdf", async (req, res) => {
     const base64PDF = buffer.toString("base64");
 
     // Fase 3: Preparar payload en JSON
-    const url = `https://www.gladtolink.com:8080/api/G2LIntegration/${token}`;
-    console.log(
-      `Llamando a API G2L con DocID: ${document_id} y DocName: ${document_name}`
-    );
-
+   const url = `https://www.gladtolink.com:8080/api/G2LIntegration/${token}`;
+    console.log(`Llamando a API G2L con DocID: ${document_id} y DocName: ${document_name}`);
     const dataPayload = {
       documentUniqueId: document_id,
       documentFileName: document_name,
-      documentFile: `application/pdf;base64,${base64PDF}`,
+      documentFile: base64PDF,
     };
 
-    // Fase 4: POST a GladToLink
+    const formParams = new URLSearchParams();
+    formParams.append("data", JSON.stringify(dataPayload));
+
     const uploadResponse = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dataPayload),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formParams,
     });
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      return res.status(500).json({
-        error: "Error al enviar el archivo a G2L",
-        details: errorText,
-      });
+      return res
+        .status(500)
+        .json({ error: "Error al enviar el PDF", details: errorText });
     }
 
     const result = await uploadResponse.json();
     res.json({ success: true, data: result });
   } catch (err) {
-    console.error(" Error interno:", err);
+    console.error(err);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
-
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(` Servidor escuchando en el puerto ${port}`);
